@@ -14,7 +14,7 @@ trap cleanup INT TERM EXIT
 
 install() {
   local version=$1
-  local install_path="$2/bin"
+  local install_path=$2
   
   # Note that we're adding back the 'v' tag prefix but _only_ in the directory path, not the downloaded file name.
   local download_url="https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/${version}/gatling-charts-highcharts-bundle-${version}-bundle.zip"
