@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Fetch all tag names, and get only second column. Then remove all unnecessary characters.
+list_of_versions=$(
+  git ls-remote --heads --sort=version:refname --tags https://github.com/gatling/gatling.git \
+  | awk '!/({})/ {print $2}' | grep '^refs/tags/v' | awk 'gsub("(refs/tags/v)", "")'
+)
+
+echo $list_of_versions

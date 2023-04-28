@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[[ -z ${ASDF_INSTALL_TYPE} ]] && echo "ASDF_INSTALL_TYPE is required" && exit 1
+[[ -z ${ASDF_INSTALL_VERSION} ]] && echo "ASDF_INSTALL_VERSION is required" && exit 1
+[[ -z ${ASDF_INSTALL_PATH} ]] && echo "ASDF_INSTALL_PATH is required" && exit 1
+
+tmp_dir=$(mktemp -d -t asdf_gatling_XXXXXX)
+cleanup() {
+  rm -rf ${tmp_dir}
+}
+trap cleanup INT TERM EXIT
+
+install() {
+  local version=$1
+  local install_path="$2/bin"
+  
+  # Note that we're adding back the 'v' tag prefix but _only_ in the directory path, not the downloaded file name.
+  local download_url="https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/${version}/gatling-charts-highcharts-bundle-${version}-bundle.zip"
+  local v6=$(echo ${version} | awk -F. '{printf "%2d%02d%02d", $1,$2,$3}')
+  if [ "${v6}" -lt 20100 ]; then
+    echo "Can't Download v${version}"
+    exit 1
+  fi
+
+  mkdir -p "${install_path}"
+
+  cd ${tmp_dir}
+  echo "Downloading gatling from ${download_url}"
+  curl -sL "$download_url" -o "${tmp_dir}/gatling_${version}.zip"
+  unzip ${tmp_dir}/gatling_${version}.zip
+  mv ${tmp_dir}/gatling-charts-highcharts-bundle-${version}/* ${install_path}
+}
+
+install ${ASDF_INSTALL_VERSION} ${ASDF_INSTALL_PATH}
